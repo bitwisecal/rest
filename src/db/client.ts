@@ -7,7 +7,7 @@ const pg = knex({
   connection: config.databaseURL,
   searchPath: ['knex', 'public'],
   pool: {
-    min: 2,
+    min: 10,
     max: 10
   }
 });
