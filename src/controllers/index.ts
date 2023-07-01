@@ -1,2 +1,1 @@
-
-export { default as userController } from './user.controller';
+export { default as workerController } from './worker.controller';

@@ -2,16 +2,14 @@ import express from 'express';
 import helmet from 'helmet';
 import compression from 'compression';
 import cors from 'cors';
-import passport from 'passport';
-import httpStatus from 'http-status';
 import config from './config/config';
 import morgan from './config/morgan';
 import xss from './middlewares/xss';
-import { jwtStrategy } from './config/passport';
-import { authLimiter } from './middlewares/rateLimiter';
+
+import { rateLimiter } from './middlewares/rateLimiter';
 import routes from './routes/v1';
 import { errorConverter, errorHandler } from './middlewares/error';
-import ApiError from './utils/ApiError';
+import { ApiError, NOT_FOUND } from './errors';
 
 const app = express();
 
@@ -39,21 +37,19 @@ app.use(compression());
 app.use(cors());
 app.options('*', cors());
 
-// jwt authentication
-app.use(passport.initialize());
-passport.use('jwt', jwtStrategy);
-
 // limit repeated failed requests to auth endpoints
 if (config.env === 'production') {
-  app.use('/v1/auth', authLimiter);
+  app.use('/v1/auth', rateLimiter);
 }
+
+app.use(rateLimiter);
 
 // v1 api routes
 app.use('/v1', routes);
 
 // send back a 404 error for any unknown api request
 app.use((req, res, next) => {
-  next(new ApiError(httpStatus.NOT_FOUND, 'Not found'));
+  next(new ApiError(NOT_FOUND));
 });
 
 // convert error to ApiError, if needed

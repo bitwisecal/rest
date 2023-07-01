@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { inHTMLData } from 'xss-filters';
+import logger from '../config/logger';
 
 /**
  * Clean for xss.

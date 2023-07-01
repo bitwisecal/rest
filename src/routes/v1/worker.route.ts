@@ -1,21 +1,26 @@
 import express from 'express';
-import auth from '../../middlewares/auth';
+
 import validate from '../../middlewares/validate';
-import { userValidation } from '../../validations';
-import { userController } from '../../controllers';
+import { workerValidation } from '../../validations';
+import { workerController } from '../../controllers';
+import { ApiError, METHOD_NOT_ALLOWED } from '../../errors';
 
 const router = express.Router();
 
 router
-  .route('/')
-  .post(auth('manageUsers'), validate(userValidation.createUser), userController.createUser)
-  .get(auth('getUsers'), validate(userValidation.getUsers), userController.getUsers);
+  .route('/:workerId/shifts')
+  .get(validate(workerValidation.getShifts), workerController.getWorkerShifts)
+  // error 405 method not allowed
+  .all(() => {
+    throw new ApiError(METHOD_NOT_ALLOWED);
+  });
 
 router
-  .route('/:userId')
-  .get(auth('getUsers'), validate(userValidation.getUser), userController.getUser)
-  .patch(auth('manageUsers'), validate(userValidation.updateUser), userController.updateUser)
-  .delete(auth('manageUsers'), validate(userValidation.deleteUser), userController.deleteUser);
+  .route('/:workerId')
+  .get(validate(workerValidation.getWorker), workerController.getWorkerDetails)
+  .all(() => {
+    throw new ApiError(METHOD_NOT_ALLOWED);
+  });
 
 export default router;
 
